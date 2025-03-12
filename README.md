@@ -17,7 +17,7 @@ This CLI-based application provides a structured, user-friendly, and efficient w
 
 ## The Library Management System consists of four models
 
-### 1️Book Model (models/book.py)
+### 1️Book Model (lib/models/book.py)
 
 Represents books in the library.
 Attributes:
@@ -28,7 +28,7 @@ Attributes:
     copies_available (Integer, default 1)
     Relationships:One-to-Many: A book can have multiple BorrowRecords.
 
-### 2️ Member Model (models/member.py)
+### 2️ Member Model (lib/models/member.py)
 
 Represents library members who borrow books.
 Attributes:
@@ -37,7 +37,7 @@ Attributes:
     email (String, required, unique)
     Relationships:One-to-Many: A member can have multiple BorrowRecords.
 
-### 3️BorrowRecord Model (models/borrow_record.py)
+### 3️BorrowRecord Model (lib/models/borrow_record.py)
 
 Tracks the borrowing history of books by members.
 Attributes:
@@ -50,7 +50,7 @@ Attributes:
         Many-to-One: Linked to a Book.
         Many-to-One: Linked to a Member.
 
-### 4️Librarian Model (models/librarian.py)
+### 4️Librarian Model (lib/models/librarian.py)
 
 Represents librarians who manage book entries and borrowing records.
 Attributes:
