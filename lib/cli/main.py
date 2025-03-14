@@ -75,19 +75,30 @@ def borrow_book_menu():
     print("\n--- Borrow a Book ---")
     member_id = input("Enter your Member ID: ").strip()
     book_id = input("Enter the Book ID to borrow: ").strip()
-    # Create a borrow record and reduce available copies.
-    result = create_borrow_record(int(book_id), int(member_id), librarian_id=None)
+    
+    # Require librarian verification for issuing a book
+    print("A librarian must verify to issue a book.")
+    verified, librarian = verify_librarian()
+    if not verified:
+        print("Librarian verification failed. Cannot borrow the book.")
+        return
+
+    # Now, pass the verified librarian's ID instead of None
+    result = create_borrow_record(int(book_id), int(member_id), librarian.id)
     if result:
         print("Book borrowed successfully!")
     if post_action_prompt() == "exit":
         exit(0)
+
 
 # Return a Book (Member action)
 def return_book_menu():
     print("\n--- Return a Book ---")
     record_id = input("Enter the Borrow Record ID: ").strip()
     # Update the borrow record with a return date and increase available copies.
-    update_borrow_record(int(record_id), return_date="now")  # Replace "now" with a proper timestamp as needed
+    from datetime import datetime, timezone
+    update_borrow_record(int(record_id), return_date=datetime.now(timezone.utc))
+
     print("Book returned successfully!")
     if post_action_prompt() == "exit":
         exit(0)
