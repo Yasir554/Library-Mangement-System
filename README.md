@@ -1,108 +1,208 @@
-# 📚 Library Management System  
+# 📚 Library Management System
 
-## 📖 Project Description  
+## 📚 Project Description
 
-The **Library Management System** is a Python-based **CLI application** designed to efficiently manage books, members, and borrowing activities. It leverages **SQLAlchemy ORM with SQLite** to store and manipulate data while following **OOP best practices**.  
+The Library Management System is a Python-based CLI application designed to efficiently manage library operations. It leverages SQLAlchemy ORM with an SQLite database to store and manipulate data while following object-oriented programming (OOP) best practices. Alembic is used to manage database migrations, and a seed script is provided to populate the database with initial data.
 
-The system enables **librarians** to **add, update, delete, and track books**, while **members** can **register, borrow, and return books**. Borrow records are maintained for tracking history and overdue returns.  
+The system ensures that only authorized librarians can manage books and members. Members can borrow and return books, with transactions automatically updating the available copies. Additionally, orphan records are prevented by enforcing relationships among models.
 
-### **🔹 Core Features:**
+## 🔹 Core Features
 
-✔ **Book Management** – Add, search, update, and delete books.  
-✔ **Member Management** – Register, search, and delete members.  
-✔ **Borrow & Return System** – Track borrowed books with timestamps.  
-✔ **Librarian Control** – Secure access for managing books & borrow records.  
-✔ **Data Validation** – Ensures accuracy and prevents inconsistencies.  
-✔ **Database & Migrations** – Uses **SQLite** with **Alembic** for migrations.  
+- **Book Management** – Librarians can add, update, and delete books. The system automatically manages author records.
+- **Member Management** – Librarians can add and delete members, while members can borrow and return books.
+- **Borrow & Return System** – Tracks borrowing history and updates book availability.
+- **Librarian Control** – Only authorized librarians can perform administrative tasks.
+- **Data Validation & Integrity** – Prevents orphan records and ensures consistency.
+- **Database Migrations & Seeding** – Uses Alembic migrations and includes a seed script.
 
-This **CLI-based application** provides a structured, **user-friendly**, and efficient way to manage a library **without requiring a graphical interface**. 🚀  
+This CLI-based application provides a structured, user-friendly, and efficient way to manage library operations.
 
----
+## 🖥️ CLI Script Overview
 
-## **📌 Models Overview**  
+The CLI is implemented in `lib/cli/main.py`, providing a menu-driven interface with the following options:
 
-The **Library Management System** consists of **four models**:  
+### Borrow a Book
 
-### **1️⃣ Book Model (`lib/models/book.py`)**
+- Members enter their Member ID and Book ID.
+- Librarian verification is required.
+- The system decreases the available copies of the book.
 
-Represents books in the library.  
+### Return a Book
 
-- **Attributes:**  
-  - `id` (Integer, Primary Key)  
-  - `title` (String, required)  
-  - `author` (String, required)  
-  - `genre` (String, required)  
-  - `copies_available` (Integer, default 1)  
-  - `librarian_id` (Foreign Key → Librarian.id)  
+- Members provide the Borrow Record ID.
+- The system updates the borrow record and increases available copies.
 
-- **Relationships:**  
-  - **One-to-Many:** A book can have multiple **BorrowRecords**.  
-  - **Many-to-One:** A book is added by a **Librarian**.  
+### List All Books
 
----
+- Displays books with details such as ID, title, genre, and available copies.
 
-### **2️⃣ Member Model (`lib/models/member.py`)**
+### Manage Books (Librarian Only)
 
-Represents library members who borrow books.  
+- **Add a Book**: Prompts for book title, author name, genre, and copies.
+- **Delete a Book**: Allows deletion by entering the Book ID.
 
-- **Attributes:**  
-  - `id` (Integer, Primary Key)  
-  - `name` (String, required)  
-  - `email` (String, required, unique)  
+### Manage Members (Librarian Only)
 
-- **Relationships:**  
-  - **One-to-Many:** A member can have multiple **BorrowRecords**.  
+- Librarians can list, add, and delete member records.
 
----
+### Manage Librarians
 
-### **3️⃣ BorrowRecord Model (`lib/models/borrow_record.py`)**  
+- Administrators can list, add, or delete librarians.
 
-Tracks borrowing history of books by members.  
+### Exit
 
-- **Attributes:**  
-  - `id` (Integer, Primary Key)  
-  - `book_id` (Foreign Key → Book.id)  
-  - `member_id` (Foreign Key → Member.id)  
-  - `borrow_date` (DateTime, default=current timestamp)  
-  - `return_date` (DateTime, nullable, initially None)  
-  - `librarian_id` (Foreign Key → Librarian.id)  
+- Closes the application.
 
-- **Relationships:**  
-  - **Many-to-One:** Linked to a **Book**.  
-  - **Many-to-One:** Linked to a **Member**.  
-  - **Many-to-One:** Managed by a **Librarian**.  
+After each operation, users can **return to the main menu** or **exit**.
 
----
+## ⚙️ Function Overview
 
-### **4️⃣ Librarian Model (`lib/models/librarian.py`)**
+### CRUD Operations (Located in `lib/crud/`)
 
-Represents librarians who **manage books and borrowing records**.  
+#### Book CRUD (`book_crud.py`)
 
-- **Attributes:**  
-  - `id` (Integer, Primary Key)  
-  - `name` (String, required)  
-  - `employee_id` (String, required, unique)  
-  - `email` (String, required, unique)  
+- `create_book(...)`
+- `get_all_books()`
+- `find_book_by_id(book_id)`
+- `update_book(book_id, **kwargs)`
+- `delete_book(book_id)`
 
-- **Relationships:**  
-  - **One-to-Many:** A librarian can add multiple **Books**.  
-  - **One-to-Many:** A librarian can oversee multiple **BorrowRecords**.  
+#### Member CRUD (`member_crud.py`)
 
----
+- Functions for creating, listing, finding, updating, and deleting members.
 
-## **📌 Librarian Responsibilities**  
+#### Librarian CRUD (`librarian_crud.py`)
 
-Librarians are responsible for managing the library’s operations, including handling books and overseeing borrowing activities.  
+- Functions for managing librarians.
 
-### **🔹 Key Responsibilities:**  
+#### BorrowRecord CRUD (`borrow_record_crud.py`)
 
-✔ **Managing Books** – Adding, updating, and removing books from the library.  
-✔ **Overseeing Borrowing** – Approving book borrow requests & tracking returns.  
-✔ **Maintaining Records** – Ensuring accurate tracking of book availability.  
-✔ **Enforcing Library Policies** – Ensuring correct data entry and preventing duplicates.  
+- `create_borrow_record(...)`
+- `update_borrow_record(...)`
+- Functions for retrieving or deleting borrow records.
 
----
+#### Author CRUD (`author_crud.py`)
 
-### **✅ Final Notes:**  
+- `find_author_by_name(name)`
+- `create_author(name)`
+- Functions for managing authors, ensuring books remain linked.
 
-This Library Management System is designed to be **efficient, scalable, and user-friendly** while ensuring **data integrity** through **validations and relationships**. It is built with **Python, SQLAlchemy, Alembic, and a robust CLI** for seamless interaction.  
+## 🗂️ Models Overview
+
+Defined in `lib/models/`:
+
+### **Author Model (`author.py`)**
+
+- `id`: Primary key.
+- `name`: Unique and required.
+- **Relationships**: One-to-many with books.
+
+### **Book Model (`book.py`)**
+
+- `id`, `title`, `author_id`, `genre`, `copies_available`, `librarian_id`.
+- **Relationships**: Many-to-one with Author & Librarian, One-to-many with BorrowRecords.
+
+### **Member Model (`member.py`)**
+
+- `id`, `name`, `email` (unique).
+- **Relationships**: One-to-many with BorrowRecords.
+
+### **BorrowRecord Model (`borrow_record.py`)**
+
+- `id`, `book_id`, `member_id`, `librarian_id`, `borrow_date`, `return_date` (nullable).
+- **Relationships**: Many-to-one with Book, Member, and Librarian.
+
+### **Librarian Model (`librarian.py`)**
+
+- `id`, `name`, `employee_id`, `email` (unique).
+- **Relationships**: One-to-many with Books & BorrowRecords.
+
+## 🛠️ Database & Migrations
+
+### Database Setup
+
+- `lib/db/database.py` configures SQLite using SQLAlchemy.
+
+### Migrations
+
+- Alembic manages schema changes (`lib/db/`).
+
+### Seed Script
+
+- `seed.py` populates the database with initial data.
+
+## 📝 How to Run the Application
+
+### Set Up the Environment
+
+```bash
+pipenv install
+pipenv shell
+```
+
+### Run Migrations
+
+```bash
+alembic upgrade head
+```
+
+### Seed the Database (Optional)
+
+```bash
+python seed.py
+```
+
+### Run the CLI
+
+```bash
+python -m lib.cli.main
+```
+
+OR
+
+```bash
+python lib/cli/main.py
+```
+
+## 📚 CLI Script Detailed Explanation
+
+### Main Menu
+
+- Borrow a Book
+- Return a Book
+- List All Books
+- Manage Books (Librarian Only)
+- Manage Members (Librarian Only)
+- Manage Librarians
+- Exit
+
+### Submenus
+
+#### Borrow a Book
+
+- Prompts for Member ID and Book ID.
+- Requires librarian verification.
+- Reduces available copies.
+
+#### Return a Book
+- Prompts for Borrow Record ID.
+- Updates the return date.
+- Increases available copies.
+
+#### Manage Books
+
+- Only accessible to librarians after verification.
+- Prompts for title, author, genre, copies when adding.
+- Deletes books by Book ID.
+
+#### Manage Members
+
+- Librarians can list, add, and delete members.
+
+#### Manage Librarians
+
+- Administrators can list, add, or delete librarians.
+
+### Post-Action Prompt
+
+After each action, users enter **1 to exit** or **2 to return to the main menu**, ensuring smooth navigation.
