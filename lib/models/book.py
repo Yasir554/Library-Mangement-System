@@ -1,17 +1,7 @@
 from sqlalchemy import String, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
-
-class Author(Base):
-    __tablename__ = 'authors'
-
-    # Columns
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
-
-    # Relationships
-    books = relationship("Book", back_populates="author")  # One-to-Many: An author can write multiple books
-
+from .author import Author
 
 class Book(Base):
     __tablename__ = 'books'

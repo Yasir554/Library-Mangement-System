@@ -10,6 +10,7 @@ from lib.crud.book_crud import create_book, get_all_books, find_book_by_id, upda
 from lib.crud.member_crud import create_member, get_all_members, find_member_by_id, update_member, delete_member
 from lib.crud.librarian_crud import get_all_librarians, create_librarian, delete_librarian, get_librarian_by_id, update_librarian
 from lib.crud.borrow_record_crud import create_borrow_record, update_borrow_record, get_all_borrow_records
+from lib.crud.author_crud import get_all_authors, create_author, find_author_by_id, update_author, delete_author
 
 # Helper: Verify librarian credentials
 def verify_librarian():
@@ -133,10 +134,18 @@ def manage_books_menu():
         if choice == "1":
             print("\n--- Add Book ---")
             title = input("Enter Book Title: ").strip()
-            author_id = input("Enter Author ID: ").strip()
+            author_name = input("Enter Author Name: ").strip()
+            # Lookup author by name; if not found, create a new author.
+            from lib.crud.author_crud import find_author_by_name, create_author
+            author = find_author_by_name(author_name)
+            if not author:
+                print("Author not found. Creating new author.")
+                author_id_value = create_author(author_name)  # Now returns the new author's ID (an integer)
+            else:
+                author_id_value = author.id
             genre = input("Enter Genre: ").strip()
             copies_available = input("Enter Number of Copies: ").strip()
-            create_book(title, int(author_id), genre, int(copies_available), librarian.id)
+            create_book(title, author_id_value, genre, int(copies_available), librarian.id)
             print("Book added successfully!")
         elif choice == "2":
             print("\n--- Delete Book ---")
